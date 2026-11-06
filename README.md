@@ -2,7 +2,7 @@
 
 How much land would it take to replace U.S. petroleum with solar, wind, nuclear, hydro or geothermal, assuming we use just as much energy as we do today?
 
-Power is a Streamlit app for students. Pick how much energy to replace (petroleum, all fossil fuels, or all U.S. energy), check the power density of each source, and see the land needed as a share of the Lower 48 or all 50 states.
+Power is a Streamlit app for students, by Dougalien Systems. Pick how much energy to replace (petroleum, all fossil fuels, or all U.S. energy), check the power density of each source, and see the land needed as a share of the Lower 48 or all 50 states.
 
 ## Run it
 
