@@ -241,6 +241,71 @@
     renderSquares(res);
     renderTable(res);
     renderMix();
+    renderTrap();
+  }
+
+  // ---------- units trap ----------
+  function sci(n) {
+    if (!isFinite(n)) return "∞";
+    var e = Math.floor(Math.log10(Math.abs(n)));
+    if (e >= -2 && e <= 5) return fmt(n, 3);
+    var m = n / Math.pow(10, e);
+    return (Math.round(m * 10) / 10) + " × 10<sup>" + e + "</sup>";
+  }
+  function timesLand(m2) {
+    var r = m2 / (landKm2() * 1e6);
+    if (r >= 1) return "<strong>" + sci(r) + " times</strong> the " + D.LAND[state.land].label.toLowerCase();
+    return "<strong>" + fmtPct(r * 100) + "</strong> of the " + D.LAND[state.land].label.toLowerCase();
+  }
+  function trapSource() {
+    var r = document.querySelector('input[name="trap-src"]:checked');
+    return r ? r.value : "wind";
+  }
+  function renderTrap() {
+    var q = quads();
+    var W = C.quadsToWatts(q) * state.endUse;
+    var J = W * C.SECONDS_PER_YEAR;
+    var src = trapSource();
+    var layton = src === "wind" ? 7 : 1.5e-6;
+    var name = src === "wind" ? "wind at 5 m/s" : "solar radiation";
+    $("trap-amount").innerHTML = sci(J) + " J per year, or " + sci(W) + " W" + (state.endUse < 1 ? " (after the efficiency credit)" : "");
+    $("trap-w1").innerHTML = sci(J) + " J ÷ " + sci(layton) + " J/m³ (Layton, " + name + ")";
+    $("trap-w1-out").innerHTML = "= " + sci(J / layton) + ". Read as m², that would be " + timesLand(J / layton) + ".";
+    $("trap-w2").innerHTML = sci(W) + " W ÷ " + sci(layton) + " J/m³";
+    $("trap-w2-out").innerHTML = "= " + sci(W / layton) + ". Read as m², that would be " + timesLand(W / layton) + ".";
+
+    $("trap-wind-inputs").hidden = src !== "wind";
+    $("trap-solar-inputs").hidden = src !== "solar";
+    var chain = $("trap-chain");
+    var steps = [], density;
+    if (src === "wind") {
+      var v = parseFloat($("t-v").value) || 0;
+      var a = parseFloat($("t-sp1").value) || 1, b = parseFloat($("t-sp2").value) || 1;
+      var e = 0.5 * 1 * v * v * 0.59;
+      var rotorW = e * v;
+      var share = Math.PI / (4 * a * b);
+      density = rotorW * share;
+      steps = [
+        "½ × 1 kg/m³ × (" + v + " m/s)² × 0.59 = " + sci(e) + " J/m³ <span class='why'>energy a turbine can take from each cubic metre of air</span>",
+        sci(e) + " J/m³ × " + v + " m/s = " + sci(rotorW) + " W/m² <span class='why'>per square metre of rotor the wind blows through</span>",
+        "rotor area ÷ land per turbine = π/4 ÷ (" + a + " × " + b + ") = " + fmtPct(share * 100) + " <span class='why'>turbines must be spread out or they steal each other's wind</span>",
+        sci(rotorW) + " × " + fmt(share, 3) + " = <strong>" + fmt(density, 2) + " W/m² of land</strong> <span class='why'>compare: 0.50 measured (Miller &amp; Keith), 0.95 median (Lovering)</span>"
+      ];
+    } else {
+      var sun = parseFloat($("t-sun").value) || 0;
+      var eff = (parseFloat($("t-eff").value) || 0) / 100;
+      var gcr = (parseFloat($("t-gcr").value) || 0) / 100;
+      density = sun * eff * gcr;
+      steps = [
+        "1,361 W/m² ÷ 3 × 10<sup>8</sup> m/s = 4.5 × 10<sup>-6</sup> J/m³ <span class='why'>sunlight above the atmosphere: same tiny order as Layton's 1.5 × 10<sup>-6</sup>, but it moves at the speed of light</span>",
+        "after night, clouds and sun angle: about " + fmt(sun, 3) + " W/m² on the ground <span class='why'>Layton: 100–150 W/m² U.S. average</span>",
+        fmt(sun, 3) + " × " + Math.round(eff * 100) + "% efficient = " + fmt(sun * eff, 3) + " W/m² <span class='why'>per square metre of panel</span>",
+        fmt(sun * eff, 3) + " × " + Math.round(gcr * 100) + "% of the ground covered = <strong>" + fmt(density, 2) + " W/m² of land</strong> <span class='why'>rows are spaced so they don't shade each other; compare 5.4 measured, 5.7 median</span>"
+      ];
+    }
+    chain.innerHTML = steps.map(function (s) { return "<li>" + s + "</li>"; }).join("");
+    var area = density > 0 ? W / density : Infinity;
+    $("trap-right-out").innerHTML = sci(W) + " W ÷ " + fmt(density, 2) + " W/m² = " + sci(area) + " m², which is " + timesLand(area) + ".";
   }
 
   function renderBars(res) {
@@ -364,6 +429,10 @@
   buildLayton();
   $("land").addEventListener("change", function (e) { state.land = e.target.value; render(); });
   $("logscale").addEventListener("change", function (e) { state.log = e.target.checked; render(); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="trap-src"], #trap input[type="number"]'), function (i) {
+    i.addEventListener("input", renderTrap);
+    i.addEventListener("change", renderTrap);
+  });
   renderDerive();
   render();
 })();

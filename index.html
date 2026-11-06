@@ -143,6 +143,54 @@
         Layton also notes that covering an area about the size of Texas with 10%-efficient panels would match the whole world's 2008 energy use.</p>
     </section>
 
+    <!-- TRAP -->
+    <section class="card" id="trap">
+      <h2>The units trap: J/m³ is not W/m²</h2>
+      <p>It is tempting to take Layton's table and divide U.S. energy use by it. Watch what the units do.
+        This uses the amount you picked in step 1: <strong id="trap-amount"></strong>.</p>
+
+      <div class="toolbar" role="radiogroup" aria-label="Source">
+        <label class="check"><input type="radio" name="trap-src" value="wind" checked> Wind</label>
+        <label class="check"><input type="radio" name="trap-src" value="solar"> Solar</label>
+      </div>
+
+      <div class="trap-grid">
+        <div class="trap-box wrong">
+          <h3>✗ Energy per year ÷ J/m³</h3>
+          <p class="calc" id="trap-w1"></p>
+          <p class="units">J ÷ (J/m³) = <strong>m³</strong>. That is a volume, not an area.</p>
+          <p id="trap-w1-out"></p>
+        </div>
+        <div class="trap-box wrong">
+          <h3>✗ Power ÷ J/m³</h3>
+          <p class="calc" id="trap-w2"></p>
+          <p class="units">(J/s) ÷ (J/m³) = <strong>m³/s</strong>. That is a flow rate, not an area.</p>
+          <p id="trap-w2-out"></p>
+        </div>
+      </div>
+
+      <div class="trap-box right">
+        <h3>✓ Turn J/m³ into W/m² first</h3>
+        <p>Energy in a cubic metre only becomes power when it <em>moves</em>. Multiply by how fast it flows through a square metre:
+          <span class="formula">(J/m³) × (m/s) = J/(m²·s) = W/m²</span></p>
+        <div id="trap-wind-inputs" class="grid-4">
+          <label class="field"><span>Average wind speed (m/s)</span><input id="t-v" type="number" min="1" max="20" step="0.5" value="5"></label>
+          <label class="field"><span>Turbine spacing downwind (rotor diameters)</span><input id="t-sp1" type="number" min="1" step="0.5" value="10"></label>
+          <label class="field"><span>Turbine spacing crosswind (rotor diameters)</span><input id="t-sp2" type="number" min="1" step="0.5" value="5"></label>
+        </div>
+        <div id="trap-solar-inputs" class="grid-4" hidden>
+          <label class="field"><span>Average sunlight on the ground (W/m²)</span><input id="t-sun" type="number" min="1" step="any" value="150"></label>
+          <label class="field"><span>Panel efficiency (%)</span><input id="t-eff" type="number" min="1" max="100" step="any" value="20"></label>
+          <label class="field"><span>Share of land covered by panels (%)</span><input id="t-gcr" type="number" min="1" max="100" step="any" value="40"></label>
+        </div>
+        <ol class="chain" id="trap-chain"></ol>
+        <p class="readout" id="trap-right-out"></p>
+      </div>
+      <p class="hint">Wind uses Layton's method: ½ × air density (1 kg/m³) × speed², times the Betz limit (59%). Real wind speeds vary, so a site's
+        average of speed³ is higher than (average speed)³, while turbines also stop gaining above their rated speed. Treat this as an order-of-magnitude check,
+        then compare it with the measured values in step 2.</p>
+    </section>
+
     <!-- CAVEATS -->
     <section class="card" id="caveats">
       <h2>What this calculator leaves out</h2>
