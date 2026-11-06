@@ -2,13 +2,18 @@
 
 How much land would it take to replace U.S. petroleum with solar, wind, nuclear, hydro or geothermal, assuming we use just as much energy as we do today?
 
-Power is a one-page, no-install web app for students. Pick how much energy to replace (petroleum, all fossil fuels, or all U.S. energy), check the power density of each source, and see the land needed as a share of the Lower 48 or all 50 states.
+Power is a Streamlit app for students. Pick how much energy to replace (petroleum, all fossil fuels, or all U.S. energy), check the power density of each source, and see the land needed as a share of the Lower 48 or all 50 states.
 
 ## Run it
 
-Open `index.html` in any browser. No build step or internet connection is needed.
+Deploy on [Streamlit Community Cloud](https://share.streamlit.io): **Create app**, pick the `dougalien/Power` repo, branch `main`, main file `streamlit_app.py`.
 
-To publish it: on GitHub, go to **Settings → Pages**, choose **Deploy from a branch**, pick `main` and `/ (root)`, and save. The site appears at `https://dougalien.github.io/Power/`.
+To run it locally:
+
+```
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
 
 ## How the numbers work
 
@@ -16,14 +21,14 @@ To publish it: on GitHub, go to **Settings → Pages**, choose **Deploy from a b
 2. **Power density.** Average watts actually delivered per square metre of land, capacity factor included. Defaults are medians from Lovering et al. (2022), converted with W/m² = 11,408 ÷ (ha/TWh/yr). Wind is shown two ways: the whole wind-farm area including spacing, and only the foundations and roads.
 3. **Land needed** = power ÷ power density.
 
-Every value is editable in the page and in `js/data.js`, which also lists all citations. A slider lets students credit electric drivetrains for wasting less energy than combustion engines; it defaults to replacing petroleum one-for-one.
+Every value is editable in the app and in `power_core/data.py`, which also lists all citations. The arithmetic is in `power_core/calc.py`. A slider lets students credit electric drivetrains for wasting less energy than combustion engines; it defaults to replacing petroleum one-for-one.
 
-The page also shows Layton (2008)'s energy-per-cubic-metre comparison, and a "work it out from a real plant" calculator so students can compute power density from a plant's capacity, area and capacity factor.
+The app also shows Layton (2008)'s energy-per-cubic-metre comparison, a "work it out from a real plant" calculator, and a units-trap walkthrough showing why dividing energy use by J/m³ gives a volume rather than an area, and how to convert J/m³ to W/m² of land.
 
 ## Check the math
 
 ```
-node test/calc.test.js
+python tests/test_calc.py
 ```
 
 ## Sources
