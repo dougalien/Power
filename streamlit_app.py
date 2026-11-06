@@ -8,10 +8,12 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+import dougalien_brand as brand
 from power_core import calc as C
 from power_core import data as D
 
-st.set_page_config(page_title="Power: How Much Land?", page_icon="⚡", layout="centered")
+st.set_page_config(page_title="Power: How Much Land?", page_icon=brand.page_icon("⚡"), layout="centered")
+brand.apply_branding()
 
 # ---------------------------------------------------------------- formatting
 _SUP = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
@@ -181,7 +183,7 @@ fig = go.Figure(
         hovertemplate="%{y}: %{text}<extra></extra>",
     )
 )
-fig.add_vline(x=100, line_color="#b42318", line_width=2,
+fig.add_vline(x=100, line_color=brand.RUST, line_width=2,
               annotation_text=f"All land in the {land_name.lower()}", annotation_position="top left")
 fig.update_layout(
     height=60 + 44 * len(rows), margin=dict(l=10, r=40, t=40, b=30),
@@ -206,7 +208,7 @@ def side(a):
 
 
 sq.add_shape(type="rect", x0=0, y0=0, x1=side(land), y1=side(land),
-             line=dict(color="#b42318", width=2), fillcolor="rgba(128,128,128,0.12)")
+             line=dict(color=brand.RUST, width=2), fillcolor="rgba(128,128,128,0.12)")
 sq.add_annotation(x=0.01, y=side(land) - 0.01, text=land_name, showarrow=False, xanchor="left", yanchor="top")
 for r in items:
     sd = max(side(r["km2"]), 0.004)
@@ -293,7 +295,7 @@ st.write(
 )
 lt = go.Figure(go.Bar(
     y=[n for n, _ in D.LAYTON_TABLE1], x=[v for _, v in D.LAYTON_TABLE1], orientation="h",
-    marker_color="#1f6f5c", text=[f"{sci(v)} J/m³" for _, v in D.LAYTON_TABLE1], textposition="outside",
+    marker_color=brand.SLATE, text=[f"{sci(v)} J/m³" for _, v in D.LAYTON_TABLE1], textposition="outside",
     cliponaxis=False, hovertemplate="%{y}: %{text}<extra></extra>",
 ))
 lt.update_xaxes(type="log", title="J/m³ (log scale)", range=[-7, 17.5], dtick=3)
