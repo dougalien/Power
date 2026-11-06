@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Power: How Much Land?</title>
+  <meta name="description" content="How much U.S. land would solar, wind, nuclear, hydro or geothermal need to replace the energy we get from petroleum? A student calculator with sourced, adjustable assumptions.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Power</p>
+      <h1>How much land would it take to replace petroleum?</h1>
+      <p class="lede">Every power source needs land: wells and refineries, solar farms, wind farms, reactors, reservoirs.
+        Pick how much energy to replace, check the assumptions, and see what share of the United States each source would cover.
+        Every number is sourced and every number can be changed.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- STEP 1 -->
+    <section class="card" id="step-target">
+      <h2><span class="step">1</span> What are we replacing?</h2>
+      <div class="grid-2">
+        <label class="field">
+          <span>Energy to replace</span>
+          <select id="target"></select>
+        </label>
+        <label class="field" id="custom-wrap" hidden>
+          <span>Custom amount (quadrillion Btu per year)</span>
+          <input id="custom-quads" type="number" min="0" step="0.1" value="35.3">
+        </label>
+      </div>
+      <p class="readout" id="target-readout"></p>
+
+      <details class="explain">
+        <summary>Replace it one-for-one, or credit electric efficiency?</summary>
+        <p>The question assumes <strong>no decrease in energy use</strong>, so by default every joule of petroleum is replaced by one joule from the new source.
+          That is the cautious, upper-end answer.</p>
+        <p>Most petroleum is burned in engines, which turn most of it into waste heat. Lawrence Livermore estimates U.S. transportation is about 21% efficient,
+          while an electric motor and battery are roughly 3–4 times better. So the same driving could need much less electricity than the petroleum it replaces.
+          Move the slider to see how much that matters.</p>
+      </details>
+      <label class="field slider">
+        <span>Units of new energy needed per unit of petroleum replaced: <output id="eff-out">1.00</output></span>
+        <input id="eff" type="range" min="0.25" max="1" step="0.05" value="1">
+        <span class="hint">1.00 = one-for-one (default). About 0.30 = full credit for electric drivetrains.</span>
+      </label>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="card" id="step-density">
+      <h2><span class="step">2</span> How much power does each source make per square metre?</h2>
+      <p>This is <strong>power density</strong>: the average watts a plant really delivers over a year (capacity factor included), divided by the land it uses.
+        Higher means less land.</p>
+      <div class="toolbar">
+        <label class="field inline">
+          <span>Use published values from</span>
+          <select id="preset"></select>
+        </label>
+        <button type="button" id="reset" class="btn">Reset to defaults</button>
+      </div>
+      <div class="table-scroll">
+        <table class="density-table">
+          <thead>
+            <tr><th>Source</th><th class="num">W/m²</th><th>What land is counted</th></tr>
+          </thead>
+          <tbody id="density-body"></tbody>
+        </table>
+      </div>
+      <p class="hint">Default values are medians from Lovering et al. (2022), a review of hundreds of real U.S. and international plants,
+        converted from hectares per TWh per year (W/m² = 11,408 ÷ ha/TWh/yr). Click a source name for notes.</p>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card results" id="results">
+      <h2><span class="step">3</span> Land needed</h2>
+      <div class="toolbar">
+        <label class="field inline">
+          <span>Compare against</span>
+          <select id="land">
+            <option value="contiguous">Lower 48 states</option>
+            <option value="all50">All 50 states</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="logscale"> Log scale</label>
+      </div>
+      <p class="readout" id="results-headline"></p>
+      <div id="bars" class="bars" role="list"></div>
+
+      <h3>See it as area</h3>
+      <p class="hint">The outlined square is the land area of the country you picked. Each coloured square has the same area the source would need.</p>
+      <div class="squares-wrap"><svg id="squares" viewBox="0 0 400 400" role="img" aria-label="Areas drawn to scale against U.S. land area"></svg></div>
+      <div id="squares-legend" class="legend"></div>
+
+      <div class="table-scroll">
+        <table class="result-table">
+          <thead><tr><th>Source</th><th class="num">km²</th><th class="num">square miles</th><th class="num">% of land</th><th class="num">× Texas</th></tr></thead>
+          <tbody id="result-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MIX -->
+    <section class="card" id="mix">
+      <h2><span class="step">4</span> Build a mix</h2>
+      <p>No country runs on one source. Set the share each clean source supplies. Shares are rescaled to add up to 100%.</p>
+      <div id="mix-sliders" class="mix-sliders"></div>
+      <p class="readout" id="mix-readout"></p>
+    </section>
+
+    <!-- DERIVE -->
+    <section class="card" id="derive">
+      <h2><span class="step">5</span> Work it out from a real plant</h2>
+      <p>Look up a real solar farm, wind farm or power plant: its nameplate capacity, its land area, and its capacity factor
+        (the share of the year's maximum output it really produces). Then:</p>
+      <p class="formula">power density = capacity × capacity factor ÷ land area</p>
+      <div class="grid-4">
+        <label class="field"><span>Nameplate capacity (MW)</span><input id="d-mw" type="number" min="0" step="any" value="100"></label>
+        <label class="field"><span>Land area</span><input id="d-area" type="number" min="0" step="any" value="3400"></label>
+        <label class="field"><span>Area unit</span>
+          <select id="d-unit"><option value="ha">hectares</option><option value="acre">acres</option><option value="km2">km²</option><option value="sqmi">square miles</option></select></label>
+        <label class="field"><span>Capacity factor (%)</span><input id="d-cf" type="number" min="0" max="100" step="any" value="35"></label>
+      </div>
+      <p class="readout" id="d-out"></p>
+      <div class="toolbar">
+        <label class="field inline"><span>Use this value for</span><select id="d-target"></select></label>
+        <button type="button" id="d-apply" class="btn">Apply</button>
+      </div>
+      <p class="hint">The example (100 MW on 3,400 ha at 35%) is a typical U.S. wind farm: NREL's survey found about 34 ha of total project area per MW (Denholm et al. 2009).</p>
+    </section>
+
+    <!-- LAYTON -->
+    <section class="card" id="volume">
+      <h2>Energy per cubic metre (Layton 2008)</h2>
+      <p>Layton compares sources by the energy held in one cubic metre of space. Fuels are a <em>store</em> of energy packed into a small volume;
+        sunlight and wind are a <em>flow</em> that passes through. That is why oil is about 10<sup>16</sup> times denser than sunlight by this measure,
+        and why flows need large collecting areas instead.</p>
+      <div id="layton-bars" class="bars log"></div>
+      <p class="hint">Log scale: each gridline is 1,000× the one before. Values from Layton (2008), Table 1 and text.
+        Layton also notes that covering an area about the size of Texas with 10%-efficient panels would match the whole world's 2008 energy use.</p>
+    </section>
+
+    <!-- CAVEATS -->
+    <section class="card" id="caveats">
+      <h2>What this calculator leaves out</h2>
+      <ul>
+        <li><strong>Storage and backup.</strong> Solar and wind vary by hour and season. Batteries, pumped hydro or backup plants add cost and some land.</li>
+        <li><strong>Transmission lines</strong> to move power from where it is made to where it is used.</li>
+        <li><strong>Mining and manufacturing</strong> land for materials, except where the source study included it (nuclear figures include uranium mining).</li>
+        <li><strong>Resource limits.</strong> Hydro and geothermal are dense but only work in certain places; most good U.S. dam sites are already built.</li>
+        <li><strong>Shared land.</strong> Land inside a wind farm is mostly still farmed. Rooftop solar uses no new land at all.</li>
+        <li><strong>Turning electricity into fuel.</strong> Planes, ships and some industry use petroleum in ways that are hard to electrify directly.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="sources">
+      <h2>Sources</h2>
+      <ol id="source-list"></ol>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Power is open source. Figures are averages; real plants vary widely. Edit <code>js/data.js</code> to change defaults.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/calc.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
