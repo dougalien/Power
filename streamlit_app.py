@@ -58,10 +58,10 @@ def pct(p: float) -> str:
 
 def power_str(w: float) -> str:
     if w >= 1e12:
-        return f"{sig(w / 1e12)} TW"
+        return f"{fmt(w / 1e12)} TW"
     if w >= 1e9:
-        return f"{sig(w / 1e9)} GW"
-    return f"{sig(w / 1e6)} MW"
+        return f"{fmt(w / 1e9)} GW"
+    return f"{fmt(w / 1e6)} MW"
 
 
 # ---------------------------------------------------------------- state
@@ -70,9 +70,18 @@ ss.setdefault("densities", dict(D.PRESETS["Lovering et al. 2022 medians (default
 ss.setdefault("editor_ver", 0)
 
 
+DEFAULT_PRESET = "Lovering et al. 2022 medians (default)"
+
+
 def load_preset():
     ss.densities = dict(D.PRESETS[ss.preset])
     ss.editor_ver += 1
+
+
+def reset_densities():
+    """Back to the default preset, and show that preset's name in the menu too."""
+    ss.preset = DEFAULT_PRESET
+    load_preset()
 
 
 # ---------------------------------------------------------------- header
@@ -120,10 +129,7 @@ st.write(
 )
 c1, c2 = st.columns([3, 1], vertical_alignment="bottom")
 c1.selectbox("Use published values from", list(D.PRESETS), key="preset", on_change=load_preset)
-if c2.button("Reset", width="stretch"):
-    ss.densities = dict(D.PRESETS["Lovering et al. 2022 medians (default)"])
-    ss.editor_ver += 1
-    st.rerun()
+c2.button("Reset", width="stretch", on_click=reset_densities)
 
 base = pd.DataFrame(
     {
