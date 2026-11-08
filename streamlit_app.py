@@ -85,11 +85,10 @@ def reset_densities():
 
 
 # ---------------------------------------------------------------- header
-st.title("How much land would it take to replace petroleum?")
-st.write(
-    "Every power source needs land: wells and refineries, solar farms, wind farms, reactors, reservoirs. "
-    "Pick how much energy to replace, check the assumptions, and see what share of the United States each "
-    "source would cover. Every number is sourced and every number can be changed."
+brand.app_header(
+    "Power: How Much Land?",
+    "See what share of the United States solar, wind, nuclear, hydro and other sources would cover "
+    "to replace petroleum, with every number sourced and open to change.",
 )
 
 # ---------------------------------------------------------------- step 1
