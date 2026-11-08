@@ -41,3 +41,4 @@ python tests/test_calc.py
 - U.S. Census Bureau, State Area Measurements (2010).
 - Smil (2015), Power Density, MIT Press.
 - LLNL U.S. energy flow charts.
+- MacKay (2009), Sustainable Energy – Without the Hot Air, UIT Cambridge. The land-area picture. https://www.withouthotair.com/

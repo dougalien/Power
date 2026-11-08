@@ -121,4 +121,7 @@ REFERENCES = [
      "https://mitpress.mit.edu/9780262529457/power-density/"),
     ("Lawrence Livermore National Laboratory. Estimated U.S. Energy Consumption (annual energy flow charts).",
      "https://flowcharts.llnl.gov/"),
+    ("MacKay, D. J. C. (2009). Sustainable Energy – Without the Hot Air. UIT Cambridge. ISBN 978-0-9544529-3-3. "
+     "Picturing each energy source as the share of a country's land it would cover.",
+     "https://www.withouthotair.com/"),
 ]

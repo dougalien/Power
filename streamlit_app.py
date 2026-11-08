@@ -202,7 +202,8 @@ else:
 st.plotly_chart(fig, width="stretch")
 
 st.subheader("See it as area")
-st.caption("The outlined square is the country's land area. Each coloured square has the area that source would need.")
+st.caption("The outlined square is the country's land area. Each coloured square has the area that source would need. "
+           "Picturing energy as a share of a country's land is the approach of MacKay (2009), built on power density (Smil 2015).")
 items = sorted([r for r in rows if r["s"].id != "wind_footprint" and math.isfinite(r["km2"]) and r["km2"] > 0],
                key=lambda r: -r["km2"])
 max_area = max([land] + [r["km2"] for r in items])
