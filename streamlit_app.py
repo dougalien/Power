@@ -121,7 +121,7 @@ st.info(
 )
 
 # ---------------------------------------------------------------- step 2
-st.header("2. How much power does each source make per square metre?")
+st.header("2. How much power does each source make per square meter?")
 st.write(
     "This is **power density**: the average watts a plant really delivers over a year (capacity factor "
     "included), divided by the land it uses. Higher means less land. Edit any value in the W/m² column."
@@ -173,7 +173,7 @@ if clean:
     hi = max(clean, key=lambda r: r["km2"])
     st.success(
         f"To replace {target_label}, the land needed ranges from **{pct(lo['pct'])}** of the "
-        f"{land_name.lower()} ({lo['s'].name.lower()}) to **{pct(hi['pct'])}** ({hi['s'].name.lower()})."
+        f"{land_name.lower()} with {lo['s'].name.lower()} to **{pct(hi['pct'])}** with {hi['s'].name.lower()}."
     )
 
 fig = go.Figure(
@@ -189,9 +189,10 @@ fig = go.Figure(
     )
 )
 fig.add_vline(x=100, line_color=brand.RUST, line_width=2,
-              annotation_text=f"All land in the {land_name.lower()}", annotation_position="top left")
+              annotation_text="100% = all land", annotation_position="top left",
+              annotation_yshift=10)
 fig.update_layout(
-    height=60 + 44 * len(rows), margin=dict(l=10, r=40, t=40, b=30),
+    height=70 + 44 * len(rows), margin=dict(l=10, r=40, t=50, b=30),
     xaxis_title="% of land", yaxis=dict(autorange="reversed"), showlegend=False,
 )
 if log_scale:
@@ -201,7 +202,7 @@ else:
 st.plotly_chart(fig, width="stretch")
 
 st.subheader("See it as area")
-st.caption("The outlined square is the country's land area. Each coloured square has the area that source would need. "
+st.caption("The outlined square is the country's land area. Each colored square has the area that source would need. "
            "Picturing energy as a share of a country's land is the approach of MacKay (2009), built on power density (Smil 2015).")
 items = sorted([r for r in rows if r["s"].id != "wind_footprint" and math.isfinite(r["km2"]) and r["km2"] > 0],
                key=lambda r: -r["km2"])
@@ -273,10 +274,10 @@ st.write(
 )
 st.latex(r"\text{power density} = \frac{\text{capacity} \times \text{capacity factor}}{\text{land area}}")
 c = st.columns(4)
-mw = c[0].number_input("Capacity (MW)", min_value=0.0, value=100.0)
-area_in = c[1].number_input("Land area", min_value=0.0, value=3400.0)
+mw = c[0].number_input("Capacity (MW)", min_value=0.0, value=100.0, format="%g")
+area_in = c[1].number_input("Land area", min_value=0.0, value=3400.0, format="%g")
 unit = c[2].selectbox("Unit", ["hectares", "acres", "km²", "square miles"])
-cf = c[3].number_input("Capacity factor (%)", min_value=0.0, max_value=100.0, value=35.0)
+cf = c[3].number_input("Capacity factor (%)", min_value=0.0, max_value=100.0, value=35.0, format="%g")
 area_ha = area_in * {"hectares": 1, "acres": 0.404686, "km²": 100, "square miles": 258.9988}[unit]
 derived = C.density_from_plant(mw, area_ha, cf / 100)
 st.info(f"≈ **{fmt(derived)} W/m²** of average output" if derived > 0 else "Enter a capacity, an area and a capacity factor.")
@@ -293,18 +294,28 @@ st.caption("The example (100 MW on 3,400 ha at 35%) is a typical U.S. wind farm:
            "project area per MW (Denholm et al. 2009).")
 
 # ---------------------------------------------------------------- Layton
-st.header("Energy per cubic metre (Layton 2008)")
+st.header("Energy per cubic meter (Layton 2008)")
 st.write(
-    "Layton compares sources by the energy held in one cubic metre of space. Fuels are a *store* of energy packed "
+    "Layton compares sources by the energy held in one cubic meter of space. Fuels are a *store* of energy packed "
     "into a small volume; sunlight and wind are a *flow* that passes through. That is why oil is about 10¹⁶ times "
     "denser than sunlight by this measure, and why flows need large collecting areas instead."
 )
+def layton_label(v: float) -> str:
+    """Plain numbers (0.05, 7, 1,000) in the middle of the range, powers of ten at the ends."""
+    return f"{v:,g}" if 0.01 <= v < 1e6 else sci(v)
+
+
+_EXP = [-6, -3, 0, 3, 6, 9, 12, 15]
 lt = go.Figure(go.Bar(
     y=[n for n, _ in D.LAYTON_TABLE1], x=[v for _, v in D.LAYTON_TABLE1], orientation="h",
-    marker_color=brand.SLATE, text=[f"{sci(v)} J/m³" for _, v in D.LAYTON_TABLE1], textposition="outside",
+    marker_color=brand.SLATE, text=[f"{layton_label(v)} J/m³" for _, v in D.LAYTON_TABLE1],
+    # The longest bars carry their label inside, so it never runs off the edge on a phone.
+    textposition=["inside" if v >= 1e10 else "outside" for _, v in D.LAYTON_TABLE1],
+    insidetextanchor="end", insidetextfont=dict(color="white"),
     cliponaxis=False, hovertemplate="%{y}: %{text}<extra></extra>",
 ))
-lt.update_xaxes(type="log", title="J/m³ (log scale)", range=[-7, 17.5], dtick=3)
+lt.update_xaxes(type="log", title="J/m³ (log scale)", range=[-7, 17.5],
+                tickvals=[10.0 ** e for e in _EXP], ticktext=[f"10{str(e).translate(_SUP)}" for e in _EXP])
 lt.update_layout(height=520, margin=dict(l=10, r=40, t=10, b=40), showlegend=False)
 st.plotly_chart(lt, width="stretch")
 st.caption("Values from Layton (2008), Table 1 and text. Layton also notes that covering an area about the size of "
@@ -331,44 +342,44 @@ layton = 7.0 if src == "Wind" else 1.5e-6
 w1, w2 = st.columns(2)
 with w1.container(border=True):
     st.markdown("#### ✗ Energy per year ÷ J/m³")
-    st.code(f"{sci(j_trap)} J ÷ {sci(layton)} J/m³", language=None)
+    st.code(f"{sci(j_trap)} J ÷ {layton_label(layton)} J/m³", language=None)
     st.markdown("J ÷ (J/m³) = **m³**. That is a volume, not an area.")
     st.markdown(f"= {sci(j_trap / layton)}. Read as m², that would be {vs_land(j_trap / layton)}.")
 with w2.container(border=True):
     st.markdown("#### ✗ Power ÷ J/m³")
-    st.code(f"{sci(w_trap)} W ÷ {sci(layton)} J/m³", language=None)
+    st.code(f"{sci(w_trap)} W ÷ {layton_label(layton)} J/m³", language=None)
     st.markdown("(J/s) ÷ (J/m³) = **m³/s**. That is a flow rate, not an area.")
     st.markdown(f"= {sci(w_trap / layton)}. Read as m², that would be {vs_land(w_trap / layton)}.")
 
 with st.container(border=True):
     st.markdown("#### ✓ Turn J/m³ into W/m² first")
-    st.markdown("Energy in a cubic metre only becomes power when it *moves*. Multiply by how fast it flows through a square metre:")
+    st.markdown("Energy in a cubic meter only becomes power when it *moves*. Multiply by how fast it flows through a square meter:")
     st.latex(r"\frac{\text{J}}{\text{m}^3} \times \frac{\text{m}}{\text{s}} = \frac{\text{J}}{\text{m}^2\,\text{s}} = \frac{\text{W}}{\text{m}^2}")
     if src == "Wind":
-        c = st.columns(3)
-        v = c[0].number_input("Average wind speed (m/s)", 1.0, 20.0, 5.0, 0.5)
-        sp1 = c[1].number_input("Spacing downwind (rotor diameters)", 1.0, 30.0, 10.0, 0.5)
-        sp2 = c[2].number_input("Spacing crosswind (rotor diameters)", 1.0, 30.0, 5.0, 0.5)
+        c = st.columns(3, vertical_alignment="bottom")
+        v = c[0].number_input("Average wind speed (m/s)", 1.0, 20.0, 5.0, 0.5, format="%g")
+        sp1 = c[1].number_input("Spacing downwind (rotor diameters)", 1.0, 30.0, 10.0, 0.5, format="%g")
+        sp2 = c[2].number_input("Spacing crosswind (rotor diameters)", 1.0, 30.0, 5.0, 0.5, format="%g")
         w = C.wind_chain(v, sp1, sp2)
         density_t = w["land_w_m2"]
         st.markdown(
-            f"1. ½ × 1 kg/m³ × ({fmt(v)} m/s)² × 0.59 = **{fmt(w['energy_j_m3'])} J/m³**, the energy a turbine can take from each cubic metre of air\n"
-            f"2. {fmt(w['energy_j_m3'])} J/m³ × {fmt(v)} m/s = **{fmt(w['rotor_w_m2'])} W/m²** per square metre of rotor the wind blows through\n"
-            f"3. rotor area ÷ land per turbine = π/4 ÷ ({fmt(sp1)} × {fmt(sp2)}) = **{pct(w['rotor_share'] * 100)}**, because turbines must be spread out or they steal each other's wind\n"
+            f"1. ½ × 1 kg/m³ × ({v:g} m/s)² × 0.59 = **{fmt(w['energy_j_m3'])} J/m³**, the energy a turbine can take from each cubic meter of air\n"
+            f"2. {fmt(w['energy_j_m3'])} J/m³ × {v:g} m/s = **{fmt(w['rotor_w_m2'])} W/m²** per square meter of rotor the wind blows through\n"
+            f"3. rotor area ÷ land per turbine = π/4 ÷ ({sp1:g} × {sp2:g}) = **{pct(w['rotor_share'] * 100)}**, because turbines must be spread out or they steal each other's wind\n"
             f"4. {fmt(w['rotor_w_m2'])} × {w['rotor_share']:.4f} = **{fmt(density_t, 2)} W/m² of land** (compare: 0.50 measured by Miller & Keith, 0.95 Lovering median)"
         )
     else:
-        c = st.columns(3)
-        sun = c[0].number_input("Average sunlight on the ground (W/m²)", 1.0, 400.0, 150.0)
-        eff = c[1].number_input("Panel efficiency (%)", 1.0, 100.0, 20.0)
-        gcr = c[2].number_input("Share of land covered by panels (%)", 1.0, 100.0, 40.0)
+        c = st.columns(3, vertical_alignment="bottom")
+        sun = c[0].number_input("Average sunlight on the ground (W/m²)", 1.0, 400.0, 150.0, format="%g")
+        eff = c[1].number_input("Panel efficiency (%)", 1.0, 100.0, 20.0, format="%g")
+        gcr = c[2].number_input("Share of land covered by panels (%)", 1.0, 100.0, 20.0, format="%g")
         s_ = C.solar_chain(sun, eff / 100, gcr / 100)
         density_t = s_["land_w_m2"]
         st.markdown(
             "1. 1,361 W/m² ÷ 3 × 10⁸ m/s = **4.5 × 10⁻⁶ J/m³**: sunlight above the atmosphere has the same tiny order as "
             "Layton's 1.5 × 10⁻⁶, but it moves at the speed of light\n"
             f"2. after night, clouds and sun angle: about **{fmt(sun)} W/m²** on the ground (Layton: 100–150 W/m² U.S. average)\n"
-            f"3. {fmt(sun)} × {eff:g}% efficient = **{fmt(s_['panel_w_m2'])} W/m²** per square metre of panel\n"
+            f"3. {fmt(sun)} × {eff:g}% efficient = **{fmt(s_['panel_w_m2'])} W/m²** per square meter of panel\n"
             f"4. {fmt(s_['panel_w_m2'])} × {gcr:g}% of the ground covered = **{fmt(density_t, 2)} W/m² of land** "
             "(rows are spaced so they don't shade each other; compare 5.4 measured, 5.7 median)"
         )

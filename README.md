@@ -18,12 +18,12 @@ streamlit run streamlit_app.py
 ## How the numbers work
 
 1. **Energy to replace.** EIA reports 2024 U.S. consumption in quadrillion Btu ("quads"). Petroleum was 35.3 quads. One quad per year averages about 33.4 GW, so petroleum is about 1.18 TW running all year.
-2. **Power density.** Average watts actually delivered per square metre of land, capacity factor included. Defaults are medians from Lovering et al. (2022), converted with W/m² = 11,408 ÷ (ha/TWh/yr). Wind is shown two ways: the whole wind-farm area including spacing, and only the foundations and roads.
+2. **Power density.** Average watts actually delivered per square meter of land, capacity factor included. Defaults are medians from Lovering et al. (2022), converted with W/m² = 11,408 ÷ (ha/TWh/yr). Wind is shown two ways: the whole wind-farm area including spacing, and only the foundations and roads.
 3. **Land needed** = power ÷ power density.
 
 Every value is editable in the app and in `power_core/data.py`, which also lists all citations. The arithmetic is in `power_core/calc.py`. A slider lets students credit electric drivetrains for wasting less energy than combustion engines; it defaults to replacing petroleum one-for-one.
 
-The app also shows Layton (2008)'s energy-per-cubic-metre comparison, a "work it out from a real plant" calculator, and a units-trap walkthrough showing why dividing energy use by J/m³ gives a volume rather than an area, and how to convert J/m³ to W/m² of land.
+The app also shows Layton (2008)'s energy-per-cubic-meter comparison, a "work it out from a real plant" calculator, and a units-trap walkthrough showing why dividing energy use by J/m³ gives a volume rather than an area, and how to convert J/m³ to W/m² of land.
 
 ## Check the math
 

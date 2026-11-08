@@ -87,12 +87,12 @@ PRESETS = {
     },
 }
 
-# Layton (2008), Table 1 and text: energy per cubic metre (J/m³).
+# Layton (2008), Table 1 and text: energy per cubic meter (J/m³).
 LAYTON_TABLE1 = [
     ("Solar radiation", 1.5e-6),
     ("Geothermal (heat pump)", 0.05),
     ("Tidal water (low)", 0.5),
-    ("Wind at 10 mph (5 m/s)", 7),
+    ("Wind at 10 mph (about 5 m/s)", 7),
     ("Tidal water (high)", 50),
     ("Human", 1000),
     ("Fat (food)", 3e7),
